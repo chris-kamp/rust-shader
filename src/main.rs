@@ -1,31 +1,21 @@
 mod shader;
 
-use image::{self, GenericImageView, ImageBuffer};
-use std::path::Path;
-use std::io::Result;
+use image;
 use shader::Shader;
+use std::io::Result;
+use std::path::Path;
+
+const DEFAULT_INPUT_PATH: &str = "imgs/input.jpg";
+const DEFAULT_OUTPUT_PATH: &str = "imgs/output.jpg";
+
+fn shade(input_path: &str, output_path: &str) {
+    let img = image::open(Path::new(input_path)).expect("Failed to open input image");
+
+    Shader::run(img, Path::new(output_path))
+}
 
 fn main() -> Result<()> {
-    // Path to the input image
-    let input_path = Path::new("imgs/input.jpg");
-
-    // Open the image file
-    let img = image::open(input_path).expect("Failed to open input image");
-
-    let (width, height) = img.dimensions();
-
-    let mut output_img = ImageBuffer::new(width, height);
-
-    for (x, y, pixel) in img.pixels() {
-        let new_pixel = Shader::shade(pixel);
-        output_img.put_pixel(x, y, new_pixel);
-    }
-
-    // Path for the output image
-    let output_path = Path::new("imgs/output.jpg");
-
-    // Save the image
-    output_img.save(output_path).expect("Failed to save output image");
+    shade(DEFAULT_INPUT_PATH, DEFAULT_OUTPUT_PATH);
 
     Ok(())
 }
