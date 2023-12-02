@@ -1,15 +1,9 @@
-use image::{self, GenericImageView, ImageBuffer, Rgba};
+mod shader;
+
+use image::{self, GenericImageView, ImageBuffer};
 use std::path::Path;
 use std::io::Result;
-
-fn shade(pixel: Rgba<u8>) -> Rgba<u8> {
-    return Rgba([
-        255 - pixel.0[0],
-        255 - pixel.0[1],
-        255 - pixel.0[2],
-        pixel.0[3]
-    ]);
-}
+use shader::Shader;
 
 fn main() -> Result<()> {
     // Path to the input image
@@ -23,7 +17,7 @@ fn main() -> Result<()> {
     let mut output_img = ImageBuffer::new(width, height);
 
     for (x, y, pixel) in img.pixels() {
-        let new_pixel = shade(pixel);
+        let new_pixel = Shader::shade(pixel);
         output_img.put_pixel(x, y, new_pixel);
     }
 
