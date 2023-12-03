@@ -10,7 +10,10 @@ impl ImageManipulator {
         let mut output_img = ImageBuffer::new(width, height);
 
         for (x, y, pixel) in img.pixels() {
-            output_img.put_pixel(x, y, shader.shade(pixel));
+            let block = vec![(x, y, pixel)];
+            for (sx, sy, spx) in shader.shade(block) {
+                output_img.put_pixel(sx, sy, spx);
+            }
         }
 
         output_img
