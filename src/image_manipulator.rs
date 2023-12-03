@@ -5,7 +5,7 @@ use std::path::Path;
 pub struct ImageManipulator;
 
 impl ImageManipulator {
-    pub fn run<S: Shader>(img: DynamicImage, output_path: &Path, shader: &S) {
+    pub fn run<S: Shader + ?Sized>(img: &DynamicImage, output_path: &Path, shader: &S) {
         let (width, height) = img.dimensions();
         let mut output_img = ImageBuffer::new(width, height);
 
