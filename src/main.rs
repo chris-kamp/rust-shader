@@ -8,6 +8,7 @@ use std::path::Path;
 mod shaders;
 use shaders::GrayscaleShader;
 use shaders::NegativeShader;
+use shaders::PixelShader;
 use shaders::Shader;
 
 const DEFAULT_INPUT_PATH: &str = "imgs/input.jpg";
@@ -19,6 +20,7 @@ fn main() -> Result<()> {
     let mut shaders: HashMap<&str, Box<dyn Shader>> = HashMap::new();
     shaders.insert("grayscale", Box::new(GrayscaleShader));
     shaders.insert("negative", Box::new(NegativeShader));
+    shaders.insert("pixel", Box::new(PixelShader));
 
     for (&key, shader) in &shaders {
         let output_file = format!("imgs/output-{}.jpg", key);
