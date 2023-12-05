@@ -12,10 +12,26 @@ use shaders::PaletteShader;
 use shaders::PixelShader;
 use shaders::Shader;
 
-const DEFAULT_INPUT_PATH: &str = "imgs/input.jpg";
+use clap::{arg, command, value_parser};
+use std::path::PathBuf;
 
 fn main() -> Result<()> {
-    let input_path = DEFAULT_INPUT_PATH;
+    let matches = command!()
+        .arg(
+            arg!(
+                -i --input <FILE> "Relative path to the input image file"
+            )
+            .required(true)
+            .value_parser(value_parser!(PathBuf)),
+        )
+        .arg(arg!(
+            -s --shader "The shader to apply (if not passed, an output image will be generated for each shader): <grayscale | negative | palette | pixel>"
+        ))
+        .get_matches();
+
+    let input_path = matches
+        .get_one::<PathBuf>("input")
+        .expect("Missing required argument --input <FILE>");
     let img = image::open(Path::new(input_path)).expect("Failed to open input image");
 
     let mut shaders: HashMap<&str, Box<dyn Shader>> = HashMap::new();
