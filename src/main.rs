@@ -82,22 +82,30 @@ fn main() -> Result<()> {
     let shaders = prepare_shaders();
     let arg_matches = get_args();
 
-    let input_path = arg_matches.get_one::<PathBuf>("input").expect(
-        "Specify an input image file with --input <FILE>. Call with --help for more information.",
-    );
+    let input_path;
+    if let Some(val) = arg_matches.get_one::<PathBuf>("input") {
+        input_path = val;
+    } else {
+        eprintln!("Error: Missing required argument. Specify an input image file with --input <FILE>. Call with --help for more information.");
+        std::process::exit(1);
+    }
 
-    let output_directory = arg_matches
-        .get_one::<PathBuf>("output")
-        .expect("Expected --output arg to have a default value");
+    let output_directory;
+    if let Some(val) = arg_matches.get_one::<PathBuf>("output") {
+        output_directory = val;
+    } else {
+        eprintln!("An unexpected error occurred. Expected --output arg to have a default value, but found none.");
+        std::process::exit(1);
+    }
 
     let shader_key: &str;
-
     if arg_matches.get_flag("all") {
-        shader_key = "all"
+        shader_key = "all";
+    } else if let Some(val) = arg_matches.get_one::<String>("shader") {
+        shader_key = val;
     } else {
-        shader_key = arg_matches.get_one::<String>("shader").expect(
-            "Specify a shader with -s <shader>, or pass -a to generate an output file for each available shader. Call with --help for more information."
-        )
+        eprintln!("Error: Missing required argument. Specify a shader with -s <shader>, or pass -a to generate an output file for each available shader. Call with --help for more information.");
+        std::process::exit(1);
     }
 
     let img = image::open(Path::new(input_path)).expect("Failed to open input image");
