@@ -52,6 +52,32 @@ fn prepare_shaders() -> HashMap<String, Box<dyn Shader>> {
     shaders
 }
 
+fn print_results(generated: &[String], output_directory: &PathBuf) {
+    let plural_suffix = if generated.len() == 1 { "" } else { "s" };
+
+    if let Ok(absolute_path) = fs::canonicalize(output_directory) {
+        print!(
+            "Success! Generated output file{} in {}:",
+            plural_suffix,
+            absolute_path.display()
+        );
+    } else {
+        print!(
+            "Success! Generated output file{} in {}:",
+            plural_suffix,
+            output_directory.display()
+        );
+    }
+
+    for (idx, file) in generated.iter().enumerate() {
+        if idx != 0 && idx != generated.len() {
+            print!("|")
+        }
+        print!(" {} ", file);
+    }
+    println!("");
+}
+
 fn main() -> Result<()> {
     let shaders = prepare_shaders();
     let arg_matches = get_args();
@@ -89,29 +115,7 @@ fn main() -> Result<()> {
         generated.push(format!("{}.jpg", key));
     }
 
-    let plural_suffix = if generated.len() == 1 { "" } else { "s" };
-
-    if let Ok(absolute_path) = fs::canonicalize(output_directory) {
-        print!(
-            "Success! Generated output file{} in {}:",
-            plural_suffix,
-            absolute_path.display()
-        );
-    } else {
-        print!(
-            "Success! Generated output file{} in {}:",
-            plural_suffix,
-            output_directory.display()
-        );
-    }
-
-    for (idx, file) in generated.iter().enumerate() {
-        if idx != 0 && idx != generated.len() {
-            print!("|")
-        }
-        print!(" {} ", file);
-    }
-    println!("");
+    print_results(&generated, output_directory);
 
     Ok(())
 }
