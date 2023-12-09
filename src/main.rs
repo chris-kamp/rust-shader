@@ -12,11 +12,11 @@ use shaders::PaletteShader;
 use shaders::PixelShader;
 use shaders::Shader;
 
-use clap::{arg, command, value_parser};
+use clap::{arg, command, value_parser, ArgMatches};
 use std::path::PathBuf;
 
-fn main() -> Result<()> {
-    let matches = command!()
+fn get_args() -> ArgMatches {
+    command!()
         .arg(
             arg!(
                 -i --input <FILE> "Relative path to the input image file"
@@ -24,23 +24,52 @@ fn main() -> Result<()> {
             .required(true)
             .value_parser(value_parser!(PathBuf)),
         )
+        .arg(
+            arg!(
+                -s --shader <VALUE> "The shader to apply: <grayscale | negative | palette | pixel>"
+            )
+            .required(false),
+        )
         .arg(arg!(
-            -s --shader "The shader to apply (if not passed, an output image will be generated for each shader): <grayscale | negative | palette | pixel>"
+            -a --all "Apply all available shaders, generating an output image for each"
         ))
-        .get_matches();
+        .get_matches()
+}
 
-    let input_path = matches
+fn prepare_shaders() -> HashMap<String, Box<dyn Shader>> {
+    let mut shaders: HashMap<String, Box<dyn Shader>> = HashMap::new();
+    shaders.insert("grayscale".to_string(), Box::new(GrayscaleShader));
+    shaders.insert("negative".to_string(), Box::new(NegativeShader));
+    shaders.insert("pixel".to_string(), Box::new(PixelShader));
+    shaders.insert("palette".to_string(), Box::new(PaletteShader));
+
+    shaders
+}
+
+fn main() -> Result<()> {
+    let shaders = prepare_shaders();
+    let arg_matches = get_args();
+
+    let input_path = arg_matches
         .get_one::<PathBuf>("input")
-        .expect("Missing required argument --input <FILE>");
+        .expect("Specify an input image file with --input <FILE>. Call with --help for more information.");
+
+    let shader_key: &str;
+
+    if arg_matches.get_flag("all") {
+        shader_key = "all"
+    } else {
+        shader_key = arg_matches.get_one::<String>("shader").expect(
+            "Specify a shader with -s <shader>, or pass -a to generate an output file for each available shader. Call with --help for more information."
+        )
+    }
+
     let img = image::open(Path::new(input_path)).expect("Failed to open input image");
+    for (key, shader) in &shaders {
+        if shader_key != "all" && key != shader_key {
+            continue;
+        }
 
-    let mut shaders: HashMap<&str, Box<dyn Shader>> = HashMap::new();
-    shaders.insert("grayscale", Box::new(GrayscaleShader));
-    shaders.insert("negative", Box::new(NegativeShader));
-    shaders.insert("pixel", Box::new(PixelShader));
-    shaders.insert("palette", Box::new(PaletteShader));
-
-    for (&key, shader) in &shaders {
         let output_file = format!("imgs/output-{}.jpg", key);
         ImageManipulator::run(&img, Path::new(&output_file), shader.as_ref());
     }
