@@ -16,9 +16,15 @@ To build from source, with Rust installed, run `cargo build --release`.
 Usage: rust-shader [OPTIONS] --input <FILE>
 
 Options:
+
 -i, --input <FILE>        Relative path to the input image file
+
 -o, --output <DIRECTORY>  Directory to save the output image file. Defaults to the current working directory. [default: .]
+
 -s, --shader <VALUE>      The shader to apply: <grayscale | negative | palette | pixel>
+
 -a, --all                 Apply all available shaders, generating an output image for each
+
 -h, --help                Print help
+
 -V, --version             Print version
