@@ -88,5 +88,13 @@ fn main() -> Result<()> {
         generated.push(key);
     }
 
+    print!("Success! Generated output files:");
+    for (idx, file) in generated.iter().enumerate() {
+        if idx != 0 && idx != generated.len() {
+            print!("| ")
+        }
+        print!(" {}", file);
+    }
+    println!("");
     Ok(())
 }
