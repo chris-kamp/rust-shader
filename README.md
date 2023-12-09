@@ -3,12 +3,14 @@
 A simple command-line tool for applying various pixel shaders to image files,
 created as a hobby project mainly for the sake of learning Rust.
 
+## Shaders
 Four shaders are available:
 - grayscale: Renders the image in grayscale
 - negative: Renders the image in negative (inverted colours)
 - pixel: Renders the image in a blocky, pixelated style
 - palette: Transforms the image to fit a colour palette. Colour palettes are hardcoded for now.
 
+## Usage
 To build from source, with Rust installed, run `cargo build --release`.
 
 Usage: rust-shader [OPTIONS] --input <FILE>
