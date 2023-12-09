@@ -3,6 +3,7 @@ mod image_manipulator;
 use image;
 use image_manipulator::ImageManipulator;
 use std::collections::HashMap;
+use std::fs;
 use std::io::Result;
 use std::path::Path;
 mod shaders;
@@ -59,11 +60,9 @@ fn main() -> Result<()> {
         "Specify an input image file with --input <FILE>. Call with --help for more information.",
     );
 
-    let mut output_path = PathBuf::from(
-        arg_matches
-            .get_one::<PathBuf>("output")
-            .expect("Expected --output arg to have a default value"),
-    );
+    let output_directory = arg_matches
+        .get_one::<PathBuf>("output")
+        .expect("Expected --output arg to have a default value");
 
     let shader_key: &str;
 
@@ -82,19 +81,37 @@ fn main() -> Result<()> {
             continue;
         }
 
+        let mut output_path = PathBuf::from(output_directory);
         output_path.push(format!("output-{}.jpg", key));
 
         ImageManipulator::run(&img, Path::new(&output_path), shader.as_ref());
-        generated.push(key);
+
+        generated.push(format!("{}.jpg", key));
     }
 
-    print!("Success! Generated output files:");
+    let plural_suffix = if generated.len() == 1 { "" } else { "s" };
+
+    if let Ok(absolute_path) = fs::canonicalize(output_directory) {
+        print!(
+            "Success! Generated output file{} in {}:",
+            plural_suffix,
+            absolute_path.display()
+        );
+    } else {
+        print!(
+            "Success! Generated output file{} in {}:",
+            plural_suffix,
+            output_directory.display()
+        );
+    }
+
     for (idx, file) in generated.iter().enumerate() {
         if idx != 0 && idx != generated.len() {
-            print!("| ")
+            print!("|")
         }
-        print!(" {}", file);
+        print!(" {} ", file);
     }
     println!("");
+
     Ok(())
 }
